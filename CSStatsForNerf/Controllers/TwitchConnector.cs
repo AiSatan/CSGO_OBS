@@ -17,7 +17,7 @@ namespace CSStatsForNerf.Controllers
         {
             lock (_locker)
             {
-                if (Startup.SteamId == data.provider?.steamid?.ToString() && data.map?.phase?.ToString() != "gameover")
+                if ("AiSatan" == data.player?.name?.ToString() && data.map?.phase?.ToString() != "gameover")
                 {
                     gameResult = "-";
 
@@ -111,6 +111,12 @@ namespace CSStatsForNerf.Controllers
                 {
                     AddEvent(EventT.Gameover);
                 }
+                else if (data.round?.phase?.ToString() == "freezetime")
+                {
+                    AddEvent(EventT.RoundStart);
+                }
+
+
 
                 var path = @"C:\Users\aisat\Documents\Visual Studio 2017\Projects\CSGOToTwitch\CSStatsForNerf\bin\Debug\netcoreapp2.1\stats.txt";
 
@@ -148,7 +154,6 @@ namespace CSStatsForNerf.Controllers
             switch (kills)
             {
                 case 0:
-                    AddEvent(EventT.RoundStart);
                     break;
                 case 1:
                     AddEvent(kills == hkills ? EventT.Kill : EventT.HKill);
