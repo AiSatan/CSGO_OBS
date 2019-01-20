@@ -116,7 +116,7 @@ namespace CSStatsForNerf.Controllers
 
                 File.WriteAllText(path, "");
                 File.AppendAllText(path, "map.phase " + data.map?.phase ?? "null");
-                File.AppendAllText(path, "Game Result: " + gameResult);
+                File.AppendAllText(path, "\r\nGame Result: " + gameResult);
                 File.AppendAllText(path, "\r\nmap.round " + data.map?.round ?? "null");
                 File.AppendAllText(path, "\r\nmap.team_ct.score " + data.map?.team_ct?.score ?? "null");
                 File.AppendAllText(path, "\r\nmap.team_t.score " + data.map?.team_t?.score ?? "null");
