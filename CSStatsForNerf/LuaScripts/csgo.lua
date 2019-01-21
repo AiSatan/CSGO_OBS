@@ -137,7 +137,7 @@ function changeVisibility()
 		elseif v == "HDKill" then
 			obs.obs_sceneitem_set_visible(barney_head, true)
 		elseif v == "HTKill" then
-			obs.obs_sceneitem_set_visible(got_dance, true)
+			obs.obs_sceneitem_set_visible(nigers_wow, true)
 		elseif v == "HFKill" then
 			obs.obs_sceneitem_set_visible(HAce, true)
 		elseif v == "HAce" then
@@ -203,7 +203,7 @@ function changeVisibility()
 		elseif v == "UselessKD" then
 			obs.obs_sceneitem_set_visible(got_useless_tm, true)
 		elseif v == "GodKD" then
-			obs.obs_sceneitem_set_visible(nigers_wow, true)
+			obs.obs_sceneitem_set_visible(got_dance, true)
 		else 
 		end
 

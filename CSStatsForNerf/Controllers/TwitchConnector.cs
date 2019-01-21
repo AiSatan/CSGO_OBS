@@ -17,6 +17,14 @@ namespace CSStatsForNerf.Controllers
         {
             lock (_locker)
             {
+                try
+                {
+                    AddAllStats(data);
+                }
+                catch
+                {
+
+                }
                 if ("AiSatan" == data.player?.name?.ToString() && data.map?.phase?.ToString() != "gameover")
                 {
                     gameResult = "-";
@@ -56,7 +64,7 @@ namespace CSStatsForNerf.Controllers
                     var kills = Convert.ToInt32(data.player?.match_stats?.kills);
                     if (kills >= 10 && kills < 20)
                     {
-                        AddEvent(EventT.TenKills);
+                        //AddEvent(EventT.TenKills);
                     }
                     else if (kills >= 20 && kills < 30)
                     {
@@ -73,15 +81,15 @@ namespace CSStatsForNerf.Controllers
 
                     // K/D
                     var death = Convert.ToInt32(data.player?.match_stats?.deaths);
-                    if(death >= 2 && kills <= 0)
+                    if (death >= 2 && kills <= 0)
                     {
                         AddEvent(EventT.UselessScore);
                     }
-                    if (death >= 5 && (float)kills/ (float)death < 0.3f)
+                    if (death >= 5 && (float)kills / (float)death < 0.4f)
                     {
                         AddEvent(EventT.UselessKD);
                     }
-                    else if((float)kills / (float)death > 3.0f)
+                    else if (((float)kills / (float)death > 2.5f) && kills > 5)
                     {
                         AddEvent(EventT.GodKD);
                     }
@@ -107,7 +115,7 @@ namespace CSStatsForNerf.Controllers
                     }
                 }
 
-                if(data.map?.phase?.ToString() == "gameover")
+                if (data.map?.phase?.ToString() == "gameover")
                 {
                     AddEvent(EventT.Gameover);
                 }
@@ -115,11 +123,16 @@ namespace CSStatsForNerf.Controllers
                 {
                     AddEvent(EventT.RoundStart);
                 }
+            }
 
+            SentEvents();
+        }
 
-
-                var path = @"C:\Users\aisat\Documents\Visual Studio 2017\Projects\CSGOToTwitch\CSStatsForNerf\bin\Debug\netcoreapp2.1\stats.txt";
-
+        private static void AddAllStats(dynamic data)
+        {
+            var path = @"C:\Users\aisat\Documents\Visual Studio 2017\Projects\CSGOToTwitch\CSStatsForNerf\bin\Debug\netcoreapp2.1\stats.txt";
+            if (data.player?.state?.money != null)
+            {
                 File.WriteAllText(path, "");
                 File.AppendAllText(path, "map.phase " + data.map?.phase ?? "null");
                 File.AppendAllText(path, "\r\nGame Result: " + gameResult);
@@ -141,10 +154,6 @@ namespace CSStatsForNerf.Controllers
                 File.AppendAllText(path, "\r\nplayer.mvps " + data.player?.match_stats?.mvps ?? "null");
                 File.AppendAllText(path, "\r\nplayer.score " + data.player?.match_stats?.score ?? "null");
             }
-
-
-
-            SentEvents();
         }
 
         private static void KillEvents(dynamic data)
