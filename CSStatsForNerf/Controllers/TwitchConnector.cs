@@ -159,13 +159,13 @@ namespace CSStatsForNerf.Controllers
                     AddEvent(kills == hkills ? EventT.Kill : EventT.HKill);
                     break;
                 case 2:
-                    AddEvent(kills == hkills ? EventT.DKill : EventT.DKill);
+                    AddEvent(kills == hkills ? EventT.DKill : EventT.HDKill);
                     break;
                 case 3:
-                    AddEvent(kills == hkills ? EventT.TKill : EventT.TKill);
+                    AddEvent(kills == hkills ? EventT.TKill : EventT.HTKill);
                     break;
                 case 4:
-                    AddEvent(kills == hkills ? EventT.FKill : EventT.FKill);
+                    AddEvent(kills == hkills ? EventT.FKill : EventT.HFKill);
                     break;
                 case 5:
                     AddEvent(kills == hkills ? EventT.Ace : EventT.HAce);
