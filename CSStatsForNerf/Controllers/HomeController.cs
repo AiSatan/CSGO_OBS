@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using StatsForNerf.ConsoleApp;
 
 namespace CSStatsForNerf.Controllers
 {
@@ -20,7 +21,7 @@ namespace CSStatsForNerf.Controllers
 
                 Task.Factory.StartNew(() =>
                 {
-                    var obj = JsonConvert.DeserializeObject<dynamic>(body);
+                    var obj = JsonConvert.DeserializeObject<Model>(body);
                     TwitchConnector.Execute(obj);
                 });
 

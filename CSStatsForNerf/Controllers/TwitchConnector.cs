@@ -4,131 +4,130 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using StatsForNerf.ConsoleApp;
 
 namespace CSStatsForNerf.Controllers
 {
     public static class TwitchConnector
     {
-        static object _locker = new object();
+        public static object _locker = new object();
         static string gameResult = "-";
 
-        public static void Execute(dynamic data)
+        public static void Execute(Model data)
         {
-            lock (_locker)
+            try
             {
-                try
+                AddAllStats(data);
+            }
+            catch
+            {
+
+            }
+            if ("AiSatan" == data.player?.name?.ToString() && data.map?.phase?.ToString() != "gameover")
+            {
+                gameResult = "-";
+
+                // Kills
+                if (data.map?.phase?.ToString() == "warmup")
                 {
-                    AddAllStats(data);
-                }
-                catch
-                {
-
-                }
-                if ("AiSatan" == data.player?.name?.ToString() && data.map?.phase?.ToString() != "gameover")
-                {
-                    gameResult = "-";
-
-                    // Kills
-                    if (data.map?.phase?.ToString() == "warmup")
-                    {
-                        AddEvent(EventT.WarmUp);
-                    }
-                    else
-                    {
-                        KillEvents(data);
-                    }
-
-                    // Bomb stats
-                    var bomb = data.round?.bomb?.ToString();
-                    if (bomb == "planted")
-                    {
-                        AddEvent(data.player?.team?.ToString() == "CT" ? EventT.CTPlanted : EventT.TPlanted);
-                    }
-                    else if (bomb == "exploded")
-                    {
-                        AddEvent(data.player?.team?.ToString() == "CT" ? EventT.CTExploded : EventT.TExploded);
-                    }
-                    else if (bomb == "defused")
-                    {
-                        AddEvent(data.player?.team?.ToString() == "CT" ? EventT.CTDefused : EventT.TDefused);
-                    }
-
-                    // One hp
-                    if (Convert.ToInt32(data.player?.state?.health) == 1)
-                    {
-                        AddEvent(EventT.OneHp);
-                    }
-
-                    //  Most kills
-                    var kills = Convert.ToInt32(data.player?.match_stats?.kills);
-                    if (kills >= 10 && kills < 20)
-                    {
-                        //AddEvent(EventT.TenKills);
-                    }
-                    else if (kills >= 20 && kills < 30)
-                    {
-                        AddEvent(EventT.TwentyKills);
-                    }
-                    else if (kills >= 30 && kills < 40)
-                    {
-                        AddEvent(EventT.ThirtyKills);
-                    }
-                    else if (kills >= 40)
-                    {
-                        AddEvent(EventT.FortyKills);
-                    }
-
-                    // K/D
-                    var death = Convert.ToInt32(data.player?.match_stats?.deaths);
-                    if (death >= 2 && kills <= 0)
-                    {
-                        AddEvent(EventT.UselessScore);
-                    }
-                    if (death >= 5 && (float)kills / (float)death < 0.4f)
-                    {
-                        AddEvent(EventT.UselessKD);
-                    }
-                    else if (((float)kills / (float)death > 2.5f) && kills > 5)
-                    {
-                        AddEvent(EventT.GodKD);
-                    }
-
+                    AddEvent(EventT.WarmUp);
                 }
                 else
                 {
-                    if (Convert.ToInt32(data.map?.team_ct?.score) == 16)
-                    {
-                        var res = data.player?.team?.ToString() == "CT" ? EventT.Win : EventT.Lose;
-                        gameResult = res.ToString();
-                        AddEvent(res);
-                    }
-                    if (Convert.ToInt32(data.map?.team_t?.score) == 16)
-                    {
-                        var res = data.player?.team?.ToString() == "T" ? EventT.Win : EventT.Lose;
-                        gameResult = res.ToString();
-                        AddEvent(res);
-                    }
-                    if (Convert.ToInt32(data.map?.team_t?.score) == 15 && Convert.ToInt32(data.map?.team_ct?.score) == 15)
-                    {
-                        AddEvent(EventT.Draft);
-                    }
+                    KillEvents(data);
                 }
 
-                if (data.map?.phase?.ToString() == "gameover")
+                // Bomb stats
+                var bomb = data.round?.bomb?.ToString();
+                if (bomb == "planted")
                 {
-                    AddEvent(EventT.Gameover);
+                    AddEvent(data.player?.team?.ToString() == "CT" ? EventT.CTPlanted : EventT.TPlanted);
                 }
-                else if (data.round?.phase?.ToString() == "freezetime")
+                else if (bomb == "exploded")
                 {
-                    AddEvent(EventT.RoundStart);
+                    AddEvent(data.player?.team?.ToString() == "CT" ? EventT.CTExploded : EventT.TExploded);
                 }
+                else if (bomb == "defused")
+                {
+                    AddEvent(data.player?.team?.ToString() == "CT" ? EventT.CTDefused : EventT.TDefused);
+                }
+
+                // One hp
+                if (Convert.ToInt32(data.player?.state?.health) == 1)
+                {
+                    AddEvent(EventT.OneHp);
+                }
+
+                //  Most kills
+                var kills = Convert.ToInt32(data.player?.match_stats?.kills);
+                if (kills >= 10 && kills < 20)
+                {
+                    //AddEvent(EventT.TenKills);
+                }
+                else if (kills >= 20 && kills < 30)
+                {
+                    AddEvent(EventT.TwentyKills);
+                }
+                else if (kills >= 30 && kills < 40)
+                {
+                    AddEvent(EventT.ThirtyKills);
+                }
+                else if (kills >= 40)
+                {
+                    AddEvent(EventT.FortyKills);
+                }
+
+                // K/D
+                var death = Convert.ToInt32(data.player?.match_stats?.deaths);
+                if (death >= 2 && kills <= 0)
+                {
+                    AddEvent(EventT.UselessScore);
+                }
+                if (death >= 5 && (float)kills / (float)death < 0.4f)
+                {
+                    AddEvent(EventT.UselessKD);
+                }
+                else if (((float)kills / (float)death > 2.5f) && kills > 5)
+                {
+                    AddEvent(EventT.GodKD);
+                }
+
+            }
+            else
+            {
+                if (Convert.ToInt32(data.map?.team_ct?.score) == 16)
+                {
+                    var res = data.player?.team?.ToString() == "CT" ? EventT.Win : EventT.Lose;
+                    gameResult = res.ToString();
+                    AddEvent(res);
+                }
+                if (Convert.ToInt32(data.map?.team_t?.score) == 16)
+                {
+                    var res = data.player?.team?.ToString() == "T" ? EventT.Win : EventT.Lose;
+                    gameResult = res.ToString();
+                    AddEvent(res);
+                }
+                if (Convert.ToInt32(data.map?.team_t?.score) == 15 && Convert.ToInt32(data.map?.team_ct?.score) == 15)
+                {
+                    AddEvent(EventT.Draft);
+                }
+            }
+
+            if (data.map?.phase?.ToString() == "gameover")
+            {
+                AddEvent(EventT.Gameover);
+            }
+            else if (data.round?.phase?.ToString() == "freezetime")
+            {
+                AddEvent(EventT.RoundStart);
             }
 
             SentEvents();
         }
 
-        private static void AddAllStats(dynamic data)
+        private static void AddAllStats(Model data)
         {
             var path = @"C:\Users\aisat\Documents\Visual Studio 2017\Projects\CSGOToTwitch\CSStatsForNerf\bin\Debug\netcoreapp2.1\stats.txt";
             if (data.player?.state?.money != null)
@@ -156,7 +155,7 @@ namespace CSStatsForNerf.Controllers
             }
         }
 
-        private static void KillEvents(dynamic data)
+        private static void KillEvents(Model data)
         {
             var kills = Convert.ToInt32(data.player?.state?.round_kills);
             var hkills = Convert.ToInt32(data.player?.state?.round_killhs);
