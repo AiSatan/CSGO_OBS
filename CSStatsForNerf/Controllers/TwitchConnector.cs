@@ -13,7 +13,7 @@ namespace CSStatsForNerf.Controllers
         static object _locker = new object();
         static string gameResult = "-";
 
-        internal static void Execute(dynamic data)
+        public static void Execute(dynamic data)
         {
             lock (_locker)
             {
